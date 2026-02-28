@@ -6,7 +6,7 @@
     "Description": "Syncs character status (Name, Job, World, Location) to a Supabase database.",
     "Punchline": "Real-time character status heartbeat for Supabase.",
     "RepoUrl": "https://github.com/exoticismenjoyer/FFXIV-Dalamud-StatusPulse",
-    "iconUrl": "https://raw.githubusercontent.com/exoticismenjoyer/FFXIV-Dalamud-StatusPulse/refs/heads/master/hankoninstaller/voightmainnew.png",
+    "iconUrl": "https://raw.githubusercontent.com/exoticismenjoyer/FFXIV-Dalamud-StatusPulse/refs/heads/master/hankoninstaller/voightmainnew.jpg",
     "ApplicableVersion": "any",
     "DalamudApiLevel": 14,
     "AssemblyVersion": "1.0.0.0",
