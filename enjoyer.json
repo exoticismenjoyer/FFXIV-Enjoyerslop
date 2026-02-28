@@ -10,7 +10,7 @@
     "ApplicableVersion": "any",
     "DalamudApiLevel": 14,
     "AssemblyVersion": "1.0.0.0",
-    "DownloadLinkInstall": "https://raw.githubusercontent.com/exoticismenjoyer/FFXIVStatusPulse/master/latest.zip",
-    "DownloadLinkUpdate": "https://raw.githubusercontent.com/exoticismenjoyer/FFXIVStatusPulse/master/latest.zip"
+    "DownloadLinkInstall": "https://raw.githubusercontent.com/exoticismenjoyer/FFXIV-Dalamud-StatusPulse/master/latest.zip",
+    "DownloadLinkUpdate": "https://raw.githubusercontent.com/exoticismenjoyer/FFXIV-Dalamud-StatusPulse/master/latest.zip"
   }
 ]
