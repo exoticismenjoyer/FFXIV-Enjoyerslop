@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Dalamud.NET.Sdk/14.0.1">
+  <PropertyGroup>
+     <ProjectName>StatusPulse</ProjectName>
+    <Version>1.0.0.0</Version>
+    <Description>A Dalamud Plugin for Real-time FFXIV character status synchronization with Supabase.</Description>
+    <PackageProjectUrl>https://github.com/exoticismenjoyer/FFXIV-Dalamud-StatusPulse</PackageProjectUrl>
+    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Windows\MainWindow.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="hankimages\hankconfig.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>
