@@ -98,49 +98,61 @@ public sealed class StatusPulsePlugin : IDalamudPlugin
         
     }
 
-    private (string Territory, string Duty, bool InDuty) GetLocationInfo()
+   private (string Territory, string Duty, bool InDuty) GetLocationInfo()
+{
+    string territoryName = "Unknown";
+    string dutyName = "None";
+    bool inDuty = false;
+
+    try
     {
+        var territoryId = (uint)ClientState.TerritoryType;
 
-        string territoryName = "Unknown";
-        string dutyName = "None";
-        bool inDuty = false;
-
-        try
+        var territorySheet = DataManager.GetExcelSheet<TerritoryType>();
+        if (territorySheet != null && territorySheet.TryGetRow(territoryId, out var territoryRow))
         {
-            var territoryId = (uint)ClientState.TerritoryType;
+            // TEMPORARY FIX:  PlaceName is empty for private housing instances (personal rooms, FC rooms, apartments).
+            // Fall back through zone → region → internal row name before giving up.
+            var resolved =
+                NonEmpty(territoryRow.PlaceName.Value.Name.ToString())       ??
+                NonEmpty(territoryRow.PlaceNameZone.Value.Name.ToString())   ??
+                NonEmpty(territoryRow.PlaceNameRegion.Value.Name.ToString()) ??
+                NonEmpty(territoryRow.Name.ToString());
 
-            // Territory name from the TerritoryType sheet
-            var territorySheet = DataManager.GetExcelSheet<TerritoryType>();
-            if (territorySheet != null && territorySheet.TryGetRow(territoryId, out var territoryRow))
-            {
+            if (resolved != null)
+                territoryName = resolved;
 
-                territoryName = territoryRow.PlaceName.Value.Name.ToString();
-            }
-
-            // Duty info from ContentFinderCondition sheet
-            var cfcSheet = DataManager.GetExcelSheet<ContentFinderCondition>();
-            if (cfcSheet != null)
-            {
-                // RowRef<TerritoryType> uses RowId (uint)
-                var cfc = cfcSheet.FirstOrDefault(x => x.TerritoryType.RowId == territoryId);
-
-                // FirstOrDefault returns a struct; default(ContentFinderCondition) if no match
-                if (!cfc.Equals(default(ContentFinderCondition)))
-                {
-                    inDuty = true;
-                    var dName = cfc.Name.ToString();
-                    if (!string.IsNullOrWhiteSpace(dName))
-                        dutyName = dName;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Error($"Error resolving location: {ex}");
+            if (Configuration.EnableDebugLogging)
+                Log.Info($"[TERRITORY] ID={territoryId} | PlaceName='{territoryRow.PlaceName.Value.Name}'" +
+                         $" | Zone='{territoryRow.PlaceNameZone.Value.Name}'" +
+                         $" | Region='{territoryRow.PlaceNameRegion.Value.Name}'" +
+                         $" | Resolved='{territoryName}'");
         }
 
-        return (territoryName, dutyName, inDuty);
+        var cfcSheet = DataManager.GetExcelSheet<ContentFinderCondition>();
+        if (cfcSheet != null)
+        {
+            var cfc = cfcSheet.FirstOrDefault(x => x.TerritoryType.RowId == territoryId);
+            if (!cfc.Equals(default(ContentFinderCondition)))
+            {
+                inDuty = true;
+                var dName = cfc.Name.ToString();
+                if (!string.IsNullOrWhiteSpace(dName))
+                    dutyName = dName;
+            }
+        }
     }
+    catch (Exception ex)
+    {
+        Log.Error($"Error resolving location: {ex}");
+    }
+
+    return (territoryName, dutyName, inDuty);
+}
+
+// I dont know about this! — returns the string if non-empty, otherwise null (lets ?? chain cleanly)
+private static string? NonEmpty(string? s) =>
+    string.IsNullOrWhiteSpace(s) ? null : s;
 
 
     private async Task SendStatus(PlayerStatus status)
