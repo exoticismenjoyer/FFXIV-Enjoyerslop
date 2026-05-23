@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Lumina.Excel.Sheets;
 using StatusPulse.Windows;
 using StatusPulse.Models;
+using FFXIVClientStructs.FFXIV.Client.Game;
 
 namespace StatusPulse;
 
@@ -59,14 +60,15 @@ public sealed class StatusPulsePlugin : IDalamudPlugin
 
     private void OnFrameworkUpdate(IFramework framework)
     {
+        if (Framework.UpdateDelta.TotalSeconds <= 0)
+            return;
+
         timeSinceLastUpdate += Framework.UpdateDelta.TotalSeconds;
 
         var player = ObjectTable.LocalPlayer;
         if (player == null || timeSinceLastUpdate < UpdateInterval)
             return;
 
-        if (Framework.UpdateDelta.TotalSeconds <= 0)
-            return;
 
         var playerName = player.Name.TextValue;
 
@@ -98,57 +100,100 @@ public sealed class StatusPulsePlugin : IDalamudPlugin
         
     }
 
-   private (string Territory, string Duty, bool InDuty) GetLocationInfo()
-{
-    string territoryName = "Unknown";
-    string dutyName = "None";
-    bool inDuty = false;
-
-    try
+    private (string Territory, string Duty, bool InDuty) GetLocationInfo()
     {
-        var territoryId = (uint)ClientState.TerritoryType;
+        string territoryName = "Unknown";
+        string dutyName = "None";
+        bool inDuty = false;
 
-        var territorySheet = DataManager.GetExcelSheet<TerritoryType>();
-        if (territorySheet != null && territorySheet.TryGetRow(territoryId, out var territoryRow))
+        try
         {
-            // TEMPORARY FIX:  PlaceName is empty for private housing instances (personal rooms, FC rooms, apartments).
-            // Fall back through zone → region → internal row name before giving up.
-            var resolved =
-                NonEmpty(territoryRow.PlaceName.Value.Name.ToString())       ??
-                NonEmpty(territoryRow.PlaceNameZone.Value.Name.ToString())   ??
-                NonEmpty(territoryRow.PlaceNameRegion.Value.Name.ToString()) ??
-                NonEmpty(territoryRow.Name.ToString());
+            var territoryId = (uint)ClientState.TerritoryType;
 
-            if (resolved != null)
-                territoryName = resolved;
-
-            if (Configuration.EnableDebugLogging)
-                Log.Info($"[TERRITORY] ID={territoryId} | PlaceName='{territoryRow.PlaceName.Value.Name}'" +
-                         $" | Zone='{territoryRow.PlaceNameZone.Value.Name}'" +
-                         $" | Region='{territoryRow.PlaceNameRegion.Value.Name}'" +
-                         $" | Resolved='{territoryName}'");
-        }
-
-        var cfcSheet = DataManager.GetExcelSheet<ContentFinderCondition>();
-        if (cfcSheet != null)
-        {
-            var cfc = cfcSheet.FirstOrDefault(x => x.TerritoryType.RowId == territoryId);
-            if (!cfc.Equals(default(ContentFinderCondition)))
+            var territorySheet = DataManager.GetExcelSheet<TerritoryType>();
+            if (territorySheet != null && territorySheet.TryGetRow(territoryId, out var territoryRow))
             {
-                inDuty = true;
-                var dName = cfc.Name.ToString();
-                if (!string.IsNullOrWhiteSpace(dName))
-                    dutyName = dName;
+                // PlaceName is empty for private housing interiors after patch 7.5.
+                // Fall back through zone → region → HousingManager (which reads live
+                // game memory for the correct district + ward + plot) → internal row name.
+                var resolved =
+                    NonEmpty(territoryRow.PlaceName.Value.Name.ToString())       ??
+                    NonEmpty(territoryRow.PlaceNameZone.Value.Name.ToString())   ??
+                    NonEmpty(territoryRow.PlaceNameRegion.Value.Name.ToString()) ??
+                    NonEmpty(GetHousingLocationName())                           ??
+                    NonEmpty(territoryRow.Name.ToString());
+
+                if (resolved != null)
+                    territoryName = resolved;
+
+                if (Configuration.EnableDebugLogging)
+                    Log.Info($"[TERRITORY] ID={territoryId} | PlaceName='{territoryRow.PlaceName.Value.Name}'" +
+                             $" | Zone='{territoryRow.PlaceNameZone.Value.Name}'" +
+                             $" | Region='{territoryRow.PlaceNameRegion.Value.Name}'" +
+                             $" | Resolved='{territoryName}'");
+            }
+
+            var cfcSheet = DataManager.GetExcelSheet<ContentFinderCondition>();
+            if (cfcSheet != null)
+            {
+                var cfc = cfcSheet.FirstOrDefault(x => x.TerritoryType.RowId == territoryId);
+                if (!cfc.Equals(default(ContentFinderCondition)))
+                {
+                    inDuty = true;
+                    var dName = cfc.Name.ToString();
+                    if (!string.IsNullOrWhiteSpace(dName))
+                        dutyName = dName;
+                }
             }
         }
-    }
-    catch (Exception ex)
-    {
-        Log.Error($"Error resolving location: {ex}");
+        catch (Exception ex)
+        {
+            Log.Error($"Error resolving location: {ex}");
+        }
+
+        return (territoryName, dutyName, inDuty);
     }
 
-    return (territoryName, dutyName, inDuty);
-}
+    private unsafe string? GetHousingLocationName()
+    {
+        try
+        {
+            var manager = HousingManager.Instance();
+            if (manager == null) return null;
+            if (!manager->IsInside()) return null;
+
+            // Static method — returns the TerritoryTypeId of the outdoor ward this
+            // house belongs to. Unlike the indoor territory ID (e.g. 1249), this one
+            // has a proper PlaceName in the sheet (e.g. "The Lavender Beds").
+            var wardTerritoryId = HousingManager.GetOriginalHouseTerritoryTypeId();
+            if (wardTerritoryId == 0) return null;
+
+            var sheet = DataManager.GetExcelSheet<TerritoryType>();
+            if (sheet == null || !sheet.TryGetRow(wardTerritoryId, out var row))
+                return null;
+
+            var districtName = row.PlaceName.Value.Name.ToString();
+            if (string.IsNullOrWhiteSpace(districtName)) return null;
+
+            var ward = manager->GetCurrentWard();   // sbyte, -1 if not in a ward
+            var plot = manager->GetCurrentPlot();   // sbyte, -1 if not on a plot
+            var room = manager->GetCurrentRoom();   // short, room number if in a room
+
+            if (ward >= 0 && plot >= 0)
+            {
+                if (room > 0)
+                    return $"{districtName} (Ward {ward + 1}, Plot {plot + 1}, Room {room})";
+                return $"{districtName} (Ward {ward + 1}, Plot {plot + 1})";
+            }
+
+            return districtName;
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Error resolving housing location: {ex}");
+            return null;
+        }
+    }
 
 // I dont know about this! — returns the string if non-empty, otherwise null (lets ?? chain cleanly)
 private static string? NonEmpty(string? s) =>
