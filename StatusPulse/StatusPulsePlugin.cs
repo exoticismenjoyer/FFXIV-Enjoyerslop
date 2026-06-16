@@ -13,6 +13,10 @@ using Lumina.Excel.Sheets;
 using StatusPulse.Windows;
 using StatusPulse.Models;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Client.System.String;
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Enums;
 
 namespace StatusPulse;
 
@@ -26,6 +30,7 @@ public sealed class StatusPulsePlugin : IDalamudPlugin
     [PluginService] internal static IFramework Framework { get; private set; } = null!;
     [PluginService] internal static IObjectTable ObjectTable { get; private set; } = null!;
     [PluginService] internal static ITextureProvider TextureProvider { get; private set; } = null!;
+    [PluginService] internal static IGameInteropProvider GameInteropProvider { get; private set; } = null!;
 
     private const string CommandName = "/pulse";
     private const double UpdateInterval = 60;
@@ -35,6 +40,7 @@ public sealed class StatusPulsePlugin : IDalamudPlugin
     public readonly WindowSystem WindowSystem = new("StatusPulse");
     private ConfigWindow ConfigWindow { get; init; }
     private readonly HttpClient httpClient = new();
+    private EmoteReaderHooks? emoteHooks;
 
 
     public StatusPulsePlugin()
@@ -56,7 +62,51 @@ public sealed class StatusPulsePlugin : IDalamudPlugin
         PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
         PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUi;
         Framework.Update += OnFrameworkUpdate;
+
+        // Emote mirror
+        emoteHooks = new EmoteReaderHooks();
+        emoteHooks.OnEmoteTriggered += OnEmoteTriggered;
     }
+
+    private void OnEmoteTriggered(IPlayerCharacter instigator, ushort emoteId)
+    {
+        if (!Configuration.EmoteMirrorEnabled) return;
+
+        // Friends only filter
+        if (Configuration.EmoteFriendsOnly && !instigator.StatusFlags.HasFlag(StatusFlags.Friend))
+            return;
+
+        // Look up the slash command for this emote from the Emote sheet
+        var emoteSheet = DataManager.GetExcelSheet<Emote>();
+        if (emoteSheet == null) return;
+        if (!emoteSheet.TryGetRow(emoteId, out var emoteRow)) return;
+
+        var command = emoteRow.TextCommand.Value.Command.ExtractText();
+        if (string.IsNullOrWhiteSpace(command)) return;
+
+        var fullCommand = Configuration.EmoteMotionOnly ? $"{command} motion" : command;
+        ExecuteCommand(fullCommand);
+
+        if (Configuration.EnableDebugLogging)
+            Log.Info($"[EmoteMirror] {instigator.Name} used {command} on us → mirroring '{fullCommand}'");
+    }
+
+    // Sends a slash command as the local player via the game's shell module
+   private static unsafe void ExecuteCommand(string command)
+{
+    var bytes = Encoding.UTF8.GetBytes(command);
+    if (bytes.Length == 0 || bytes.Length > 500) return;
+
+    var mes = Utf8String.FromSequence(bytes);
+    try
+    {
+        UIModule.Instance()->ProcessChatBoxEntry(mes);
+    }
+    finally
+    {
+        mes->Dtor(true); // always runs — destroys string AND frees memory
+    }
+}
 
     private void OnFrameworkUpdate(IFramework framework)
     {
@@ -256,6 +306,12 @@ private static string? NonEmpty(string? s) =>
         PluginInterface.UiBuilder.Draw -= WindowSystem.Draw;
         PluginInterface.UiBuilder.OpenConfigUi -= ToggleConfigUi;
         Framework.Update -= OnFrameworkUpdate;
+
+        if (emoteHooks != null)
+        {
+            emoteHooks.OnEmoteTriggered -= OnEmoteTriggered;
+            emoteHooks.Dispose();
+        }
 
         WindowSystem.RemoveAllWindows();
         ConfigWindow.Dispose();
