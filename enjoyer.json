@@ -1,7 +1,7 @@
 [
   {
     "Author": "Enjoyer",
-    "Name": "FFXIV StatusPulse",
+    "Name": "StatusPulse",
     "InternalName": "StatusPulse",
     "Description": "Syncs character status (Name, Job, World, Location) to a Supabase database.",
     "Punchline": "Real-time character status heartbeat for Supabase.",
