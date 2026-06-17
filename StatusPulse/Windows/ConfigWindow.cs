@@ -62,33 +62,6 @@ public class ConfigWindow : Window, IDisposable
 
 
         ImGui.Separator();
-        ImGui.Text("Emote Mirror");
-
-        var emoteMirror = configuration.EmoteMirrorEnabled;
-        if (ImGui.Checkbox("Enable Emote Mirror", ref emoteMirror))
-        {
-            configuration.EmoteMirrorEnabled = emoteMirror;
-            configuration.Save();
-        }
-
-        if (configuration.EmoteMirrorEnabled)
-        {
-            var motionOnly = configuration.EmoteMotionOnly;
-            if (ImGui.Checkbox("Motion Only (no chat message)", ref motionOnly))
-            {
-                configuration.EmoteMotionOnly = motionOnly;
-                configuration.Save();
-            }
-
-            var friendsOnly = configuration.EmoteFriendsOnly;
-            if (ImGui.Checkbox("Friends Only", ref friendsOnly))
-            {
-                configuration.EmoteFriendsOnly = friendsOnly;
-                configuration.Save();
-            }
-        }
-
-        ImGui.Separator();
         ImGui.Text("HANK VOIGHT FROM CHICAGO PD !");
         var memeTexture = StatusPulsePlugin.TextureProvider.GetFromFile(memeImagePath).GetWrapOrDefault();
         if (memeTexture != null)
@@ -103,6 +76,6 @@ public class ConfigWindow : Window, IDisposable
 
     }
 }
-    }
-}
+
+
 
