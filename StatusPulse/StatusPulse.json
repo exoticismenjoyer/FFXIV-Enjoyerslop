@@ -1,11 +1,11 @@
 {
-  "Author": "Exoticism Enjoyer",
+  "Author": "Enjoyer",
   "Name": "StatusPulse",
   "Punchline": "Real-time FFXIV character status synchronization with Supabase.",
   "Description": "Automatically exports your character's live data (Name, Job, World, Location, and Duty status) to a Supabase table at regular intervals. Recommended for developers building live character dashboards or status widgets. Configure your Supabase URL and API Key using the config window.",
   "ApplicableVersion": "any",
-  "RepoUrl":"https://github.com/exoticismenjoyer/FFXIV-Dalamud-StatusPulse" ,
-  "IconUrl":"x" ,
+  "RepoUrl":"https://github.com/exoticismenjoyer/FFXIV-Enjoyerslop" ,
+  "IconUrl":"https://raw.githubusercontent.com/exoticismenjoyer/FFXIV-Enjoyerslop/refs/heads/master/hankoninstaller/voightmainnew.jpg" ,
   "Tags": [
     "supabase",
     "status",

@@ -13,11 +13,6 @@ public class Configuration : IPluginConfiguration
     public string SupabaseUrl { get; set; } = "";
     public string SupabaseAnonKey { get; set; } = "";
 
-    // Emote Mirror
-    public bool EmoteMirrorEnabled { get; set; } = false;
-    public bool EmoteMotionOnly { get; set; } = false;   // appends "motion" to suppress chat spam
-    public bool EmoteFriendsOnly { get; set; } = false;  // only mirror emotes from friends
-
     public void Save()
     {
         StatusPulsePlugin.PluginInterface.SavePluginConfig(this);
