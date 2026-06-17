@@ -2,7 +2,7 @@
 Just a personal collection of Dalamud plugins I made for myself. Add the repo URL below to your Custom Plugin Repositories in `/xlsettings` under the Experimental tab and you're good to go.
 
 ```
-https://raw.githubusercontent.com/exoticismenjoyer/FFXIV-Dalamud-StatusPulse/master/enjoyer.json
+https://raw.githubusercontent.com/exoticismenjoyer/FFXIV-Enjoyerslop/master/enjoyer.json
 ```
 
 ---
