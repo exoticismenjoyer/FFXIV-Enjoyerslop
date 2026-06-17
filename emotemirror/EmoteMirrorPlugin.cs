@@ -68,7 +68,8 @@ public sealed class EmoteMirrorPlugin : IDalamudPlugin
         var fullCommand = Configuration.EmoteMotionOnly ? $"{command} motion" : command;
         ExecuteCommand(fullCommand);
 
-        Log.Info($"[EmoteMirror] {instigator.Name} used {command} → mirroring '{fullCommand}'");
+       if (Configuration.EnableDebugLogging)
+            Log.Info($"[EmoteMirror] {instigator.Name} used {command} → mirroring '{fullCommand}'");
     }
 
     private static unsafe void ExecuteCommand(string command)
