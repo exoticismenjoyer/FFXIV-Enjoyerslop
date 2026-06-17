@@ -52,5 +52,13 @@ public class ConfigWindow : Window, IDisposable
             configuration.EmoteFriendsOnly = friendsOnly;
             configuration.Save();
         }
+
+        var debugLogging = configuration.EnableDebugLogging;
+        if (ImGui.Checkbox("Enable Debug Logging", ref debugLogging))
+        {
+            configuration.EnableDebugLogging = debugLogging;
+            configuration.Save();
+        }
+        
     }
 }
