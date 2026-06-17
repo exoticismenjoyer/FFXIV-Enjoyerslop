@@ -12,6 +12,7 @@
     "AssemblyVersion": "1.1.0.0",
     "DownloadLinkInstall": "https://raw.githubusercontent.com/exoticismenjoyer/FFXIV-Enjoyerslop/master/statuspulse.zip",
     "DownloadLinkUpdate": "https://raw.githubusercontent.com/exoticismenjoyer/FFXIV-Enjoyerslop/master/statuspulse.zip"
+    },
     {
     "Author": "Enjoyer",
     "Name": "EmoteMirror",
@@ -24,7 +25,6 @@
     "AssemblyVersion": "1.0.0.0",
     "DownloadLinkInstall": "https://raw.githubusercontent.com/exoticismenjoyer/FFXIV-Dalamud-StatusPulse/master/emotemirror.zip",
     "DownloadLinkUpdate": "https://raw.githubusercontent.com/exoticismenjoyer/FFXIV-Dalamud-StatusPulse/master/emotemirror.zip"
-  }
   }
 ]
 
