@@ -1,11 +1,19 @@
-FFXIV StatusPulse is a Dalamud plugin that syncs your character's real-time status (Name, Job, World, Location, and Duty) to a Supabase database every 60 seconds.
 
-To install, copy the URL below and add it to your Custom Plugin Repositories in /xlsettings (Experimental tab):
+Just a personal collection of Dalamud plugins I made for myself. Add the repo URL below to your Custom Plugin Repositories in `/xlsettings` under the Experimental tab and you're good to go.
+
+```
 https://raw.githubusercontent.com/exoticismenjoyer/FFXIV-Dalamud-StatusPulse/master/enjoyer.json
+```
 
-Setup Supabase
-Go to your Supabase Dashboard, open the SQL Editor, paste the code below, and click Run. This creates the required table:
-<pre>
+---
+
+**StatusPulse**
+
+Syncs your character's status (Name, Job, World, Location, Duty) to a Supabase database every 60 seconds. I built this for my personal blog to show what I'm up to in-game. Use `/pulse` to open the config and enter your Supabase URL and API key.
+
+You'll need to create the table in Supabase first. Open the SQL Editor in your dashboard and run this:
+
+```sql
 create table player_status (
   name text primary key,
   job text,
@@ -15,6 +23,17 @@ create table player_status (
   duty_name text,
   timestamp timestamptz default now()
 );
-</pre>
+```
 
-Once installed, use the command /pulse to enter your Supabase Project URL and API Key.The plugin will automatically update your character's row in the player_status table whenever you are logged in.
+---
+
+**EmoteMirror**
+
+Mirrors emotes back at whoever uses them on you. Someone waves at you, you wave back automatically. Use `/emotemirror` to configure it.
+
+The emote hook is based on the approach used in [Right Back At You](https://github.com/dodingdaga/DalamudPlugins) by DodingDaga. Go check that out if you want the original.
+
+
+
+
+---
