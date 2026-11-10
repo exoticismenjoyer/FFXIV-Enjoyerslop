@@ -2,9 +2,9 @@
 <Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
     <ProjectName>EmoteMirror</ProjectName>
-    <Version>1.0.0.0</Version>
-    <Description>Mirrors emotes used on you back at the instigator.</Description>
-    <PackageProjectUrl>https://github.com/exoticismenjoyer/FFXIV-Dalamud-StatusPulse</PackageProjectUrl>
+    <Version>1.1.0.0</Version>
+    <Description>Mirrors back the emotes used on you.</Description>
+    <PackageProjectUrl>https://github.com/exoticismenjoyer/FFXIV-Enjoyerslop</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
