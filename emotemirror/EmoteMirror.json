@@ -1,0 +1,17 @@
+{
+  "Author": "Enjoyer",
+  "Name": "EmoteMirror",
+  "InternalName": "EmoteMirror",
+  "Punchline": "goof around with emotes",
+  "Description": "Mirrors back the emotes used on you.",
+  "ApplicableVersion": "any",
+  "DalamudApiLevel": 15,
+  "AssemblyVersion": "1.1.0.1",
+  "RepoUrl": "https://github.com/exoticismenjoyer/FFXIV-Enjoyerslop",
+  "iconUrl": "https://raw.githubusercontent.com/exoticismenjoyer/FFXIV-Enjoyerslop/refs/heads/master/hankoninstaller/poncuk.jpg",
+  "Tags": [
+    "emote",
+    "mirror",
+    "fun"
+  ]
+}

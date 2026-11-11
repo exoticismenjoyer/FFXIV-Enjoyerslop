@@ -1,0 +1,18 @@
+[
+    {
+    "Author": "Enjoyer",
+    "Name": "EmoteMirror",
+    "InternalName": "EmoteMirror",
+    "Description": "Mirrors emotes that are used on you back at the instigator.",
+    "Punchline": "goofy stuff",
+    "RepoUrl": "https://github.com/exoticismenjoyer/FFXIV-Enjoyerslop",
+    "iconUrl": "https://raw.githubusercontent.com/exoticismenjoyer/FFXIV-Enjoyerslop/refs/heads/master/hankoninstaller/poncuk.jpg",
+    "ApplicableVersion": "any",
+    "DalamudApiLevel": 15,
+    "AssemblyVersion": "1.1.0.1",
+    "DownloadLinkInstall": "https://github.com/exoticismenjoyer/FFXIV-Enjoyerslop/releases/latest/download/latest.zip",
+    "DownloadLinkUpdate": "https://github.com/exoticismenjoyer/FFXIV-Enjoyerslop/releases/latest/download/latest.zip",
+    "Changelog": "Cleanup and testing git update (Uses the same binary as the previous version),"
+  }
+]
+
